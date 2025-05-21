@@ -8,7 +8,20 @@ import (
 	"github.com/etsxxx/go-sitemap2csv/pkg/sitemap"
 )
 
+var version, gitcommit string
+
 func main() {
+	if len(os.Args) == 2 {
+		if os.Args[1] == "-v" || os.Args[1] == "--version" {
+			version = fmt.Sprintf("%s (rev:%s)", version, gitcommit)
+			fmt.Printf("sitemap2csv version: %s\n", version)
+			os.Exit(0)
+		} else if os.Args[1] == "-h" || os.Args[1] == "--help" {
+			fmt.Println("Usage: sitemap2csv <sitemap_url> <output_csv_file>")
+			os.Exit(0)
+		}
+	}
+
 	if len(os.Args) < 3 {
 		fmt.Println("Usage: sitemap2csv <sitemap_url> <output_csv_file>")
 		os.Exit(1)
