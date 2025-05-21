@@ -21,7 +21,7 @@ func main() {
 	flag.BoolVar(&showHelp, "h", false, "show help")
 	flag.BoolVar(&showHelp, "help", false, "show help")
 	flag.Usage = func() {
-		fmt.Println("Usage: sitemap2csv <sitemap_url> <output_csv_file>")
+		fmt.Println("Usage: sitemap2csv [options] <sitemap_url> <output_csv_file>")
 		flag.PrintDefaults()
 	}
 	flag.Parse()
