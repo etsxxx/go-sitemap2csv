@@ -36,6 +36,7 @@ func main() {
 	}
 
 	if flag.NArg() < 2 {
+		fmt.Printf("sitemap2csv needs at least 2 arguments\n")
 		flag.Usage()
 		os.Exit(1)
 	}
