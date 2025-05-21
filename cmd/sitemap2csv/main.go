@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/csv"
+	"flag"
 	"fmt"
 	"os"
 
@@ -11,24 +12,35 @@ import (
 var version, gitcommit string
 
 func main() {
-	if len(os.Args) == 2 {
-		switch os.Args[1] {
-		case "-v", "--version":
-			version = fmt.Sprintf("%s (rev:%s)", version, gitcommit)
-			fmt.Printf("sitemap2csv version: %s\n", version)
-			os.Exit(0)
-		case "-h", "--help":
-			fmt.Println("Usage: sitemap2csv <sitemap_url> <output_csv_file>")
-			os.Exit(0)
-		}
+	var (
+		showVersion bool
+		showHelp    bool
+	)
+	flag.BoolVar(&showVersion, "v", false, "show version")
+	flag.BoolVar(&showVersion, "version", false, "show version")
+	flag.BoolVar(&showHelp, "h", false, "show help")
+	flag.BoolVar(&showHelp, "help", false, "show help")
+	flag.Usage = func() {
+		fmt.Println("Usage: sitemap2csv <sitemap_url> <output_csv_file>")
+		flag.PrintDefaults()
+	}
+	flag.Parse()
+
+	if showVersion {
+		fmt.Printf("sitemap2csv version: %s (rev:%s)\n", version, gitcommit)
+		os.Exit(0)
+	}
+	if showHelp {
+		flag.Usage()
+		os.Exit(0)
 	}
 
-	if len(os.Args) < 3 {
-		fmt.Println("Usage: sitemap2csv <sitemap_url> <output_csv_file>")
+	if flag.NArg() < 2 {
+		flag.Usage()
 		os.Exit(1)
 	}
-	url := os.Args[1]
-	outputFile := os.Args[2]
+	url := flag.Arg(0)
+	outputFile := flag.Arg(1)
 
 	result, err := sitemap.GetSitemapRecords(url)
 	if err != nil {
@@ -52,7 +64,6 @@ func main() {
 	}()
 	w := csv.NewWriter(f)
 	if err := w.WriteAll(result.Records); err != nil {
-		// log to stderr
 		fmt.Fprintf(os.Stderr, "Error writing CSV: %v\n", err)
 		os.Exit(1)
 	}
