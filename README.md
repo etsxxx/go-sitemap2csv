@@ -31,8 +31,8 @@ A full list of binaries are [here](https://github.com/etsxxx/go-sitemap2csv/rele
 sitemap2csv <sitemap_url> <output_csv_file>
 ```
 
-You get a CSV file like the following.\
-The first record is a header row with "loc" and "lastmod".\
+You get a CSV file like the following.  
+The first record is a header row with "loc" and "lastmod".  
 "lastmod" is empty if there is no description.
 
 ```text
