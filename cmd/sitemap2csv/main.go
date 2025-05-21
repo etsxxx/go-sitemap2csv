@@ -1,0 +1,41 @@
+package main
+
+import (
+	"encoding/csv"
+	"fmt"
+	"os"
+
+	"github.com/etsxxx/go-sitemap2csv/pkg/sitemap"
+)
+
+func main() {
+	if len(os.Args) < 3 {
+		fmt.Println("Usage: sitemap2csv <sitemap_url> <output_csv_file>")
+		os.Exit(1)
+	}
+	url := os.Args[1]
+	outputFile := os.Args[2]
+
+	result, err := sitemap.GetSitemapRecords(url)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
+	for url, count := range result.ProcessedURLs {
+		fmt.Printf("Processed %d URLs from %s\n", count, url)
+	}
+
+	f, err := os.Create(outputFile)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "File Error: %v\n", err)
+		os.Exit(1)
+	}
+	defer f.Close()
+	w := csv.NewWriter(f)
+	w.WriteAll(result.Records)
+	if err := w.Error(); err != nil {
+		fmt.Fprintf(os.Stderr, "CSV Error: %v\n", err)
+		os.Exit(1)
+	}
+	fmt.Printf("CSV file created: %s\n", outputFile)
+}
