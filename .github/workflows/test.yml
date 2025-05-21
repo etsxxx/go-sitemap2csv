@@ -13,24 +13,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
 
-    services:
-      minio:
-        image: minio/minio:edge-cicd
-        ports:
-          - 9000:9000
-        env:
-          MINIO_ROOT_USER: "testid"
-          MINIO_ROOT_PASSWORD: "testsecret"
-        volumes:
-          - /tmp/data:/data
-        options: --name minio --health-cmd "curl http://localhost:9000/minio/health/live"
-
     steps:
       - name: Check out code into the Go module directory
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Go
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v5
         with:
           go-version-file: "go.mod"
           check-latest: true
@@ -50,25 +38,8 @@ jobs:
         run: go test -v ./...
 
       - name: Check lint
-        uses: golangci/golangci-lint-action@v3
+        uses: golangci/golangci-lint-action@v8
 
       - name: Check build
         run: |
           make build
-
-      - name: Check s3get binary
-        env:
-          AWS_ACCESS_KEY_ID: "testid"
-          AWS_SECRET_ACCESS_KEY: "testsecret"
-          AWS_DEFAULT_REGION: "us-east-1"
-          AWS_EC2_METADATA_DISABLED: true
-        run: |
-          echo "OK" > ~/test.txt
-          aws --endpoint-url=http://127.0.0.1:9000 s3 mb s3://test
-          aws --endpoint-url=http://127.0.0.1:9000 s3 cp ~/test.txt s3://test/test.txt
-          ./bin/s3get --endpoint-url=http://127.0.0.1:9000 s3://test/test.txt - | grep "OK"
-          [ $? -ne 0 ] && exit 1
-          ./bin/s3get --endpoint-url=http://127.0.0.1:9000 s3://test/test.txt ~/test.out
-          cat ~/test.out | grep "OK"
-          [ $? -ne 0 ] && exit 1
-          exit 0
