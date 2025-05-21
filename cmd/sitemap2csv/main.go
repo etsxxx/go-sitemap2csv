@@ -12,11 +12,12 @@ var version, gitcommit string
 
 func main() {
 	if len(os.Args) == 2 {
-		if os.Args[1] == "-v" || os.Args[1] == "--version" {
+		switch os.Args[1] {
+		case "-v", "--version":
 			version = fmt.Sprintf("%s (rev:%s)", version, gitcommit)
 			fmt.Printf("sitemap2csv version: %s\n", version)
 			os.Exit(0)
-		} else if os.Args[1] == "-h" || os.Args[1] == "--help" {
+		case "-h", "--help":
 			fmt.Println("Usage: sitemap2csv <sitemap_url> <output_csv_file>")
 			os.Exit(0)
 		}
