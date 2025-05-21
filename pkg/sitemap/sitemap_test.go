@@ -12,7 +12,9 @@ import (
 
 func TestFetchXML_Plain(t *testing.T) {
 	h := func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte(`<urlset><url><loc>http://127.0.0.1/</loc><lastmod>2020-01-01</lastmod></url></urlset>`))
+		if _, err := w.Write([]byte(`<urlset><url><loc>http://127.0.0.1/</loc><lastmod>2020-01-01</lastmod></url></urlset>`)); err != nil {
+			t.Fatalf("failed to write response: %v", err)
+		}
 	}
 	ts := httptest.NewServer(http.HandlerFunc(h))
 	defer ts.Close()
