@@ -2,19 +2,46 @@ package main
 
 import (
 	"encoding/csv"
+	"flag"
 	"fmt"
 	"os"
 
 	"github.com/etsxxx/go-sitemap2csv/pkg/sitemap"
 )
 
+var version, gitcommit string
+
 func main() {
-	if len(os.Args) < 3 {
-		fmt.Println("Usage: sitemap2csv <sitemap_url> <output_csv_file>")
+	var (
+		showVersion bool
+		showHelp    bool
+	)
+	flag.BoolVar(&showVersion, "v", false, "show version")
+	flag.BoolVar(&showVersion, "version", false, "show version")
+	flag.BoolVar(&showHelp, "h", false, "show help")
+	flag.BoolVar(&showHelp, "help", false, "show help")
+	flag.Usage = func() {
+		fmt.Println("Usage: sitemap2csv [options] <sitemap_url> <output_csv_file>")
+		flag.PrintDefaults()
+	}
+	flag.Parse()
+
+	if showVersion {
+		fmt.Printf("sitemap2csv version: %s (rev:%s)\n", version, gitcommit)
+		os.Exit(0)
+	}
+	if showHelp {
+		flag.Usage()
+		os.Exit(0)
+	}
+
+	if flag.NArg() < 2 {
+		fmt.Printf("sitemap2csv needs at least 2 arguments\n")
+		flag.Usage()
 		os.Exit(1)
 	}
-	url := os.Args[1]
-	outputFile := os.Args[2]
+	url := flag.Arg(0)
+	outputFile := flag.Arg(1)
 
 	result, err := sitemap.GetSitemapRecords(url)
 	if err != nil {
@@ -38,7 +65,6 @@ func main() {
 	}()
 	w := csv.NewWriter(f)
 	if err := w.WriteAll(result.Records); err != nil {
-		// log to stderr
 		fmt.Fprintf(os.Stderr, "Error writing CSV: %v\n", err)
 		os.Exit(1)
 	}
