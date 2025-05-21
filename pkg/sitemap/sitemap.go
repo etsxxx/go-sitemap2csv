@@ -34,14 +34,22 @@ func fetchXML(url string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			panic(err)
+		}
+	}()
 
 	if strings.HasSuffix(url, ".gz") {
 		gzr, err := gzip.NewReader(resp.Body)
 		if err != nil {
 			return nil, err
 		}
-		defer gzr.Close()
+		defer func() {
+			if err := gzr.Close(); err != nil {
+				panic(err)
+			}
+		}()
 		return io.ReadAll(gzr)
 	}
 	return io.ReadAll(resp.Body)

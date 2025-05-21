@@ -29,9 +29,15 @@ func TestFetchXML_Gzip(t *testing.T) {
 	h := func(w http.ResponseWriter, r *http.Request) {
 		var buf bytes.Buffer
 		gz := gzip.NewWriter(&buf)
-		gz.Write([]byte(`<urlset><url><loc>http://127.0.0.1/</loc><lastmod>2021-01-01</lastmod></url></urlset>`))
-		gz.Close()
-		w.Write(buf.Bytes())
+		if _, err := gz.Write([]byte(`<urlset><url><loc>http://127.0.0.1/</loc><lastmod>2021-01-01</lastmod></url></urlset>`)); err != nil {
+			t.Fatalf("failed to write gzipped data: %v", err)
+		}
+		if err := gz.Close(); err != nil {
+			t.Fatalf("failed to close gzip writer: %v", err)
+		}
+		if _, err := w.Write(buf.Bytes()); err != nil {
+			t.Fatalf("failed to write gzipped data: %v", err)
+		}
 	}
 	ts := httptest.NewServer(http.HandlerFunc(h))
 	defer ts.Close()
@@ -46,7 +52,9 @@ func TestFetchXML_Gzip(t *testing.T) {
 
 func TestParseSitemap_Urlset(t *testing.T) {
 	h := func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte(`<urlset><url><loc>http://127.0.0.1/</loc><lastmod>2022-01-01</lastmod></url></urlset>`))
+		if _, err := w.Write([]byte(`<urlset><url><loc>http://127.0.0.1/</loc><lastmod>2022-01-01</lastmod></url></urlset>`)); err != nil {
+			t.Fatalf("failed to write response: %v", err)
+		}
 	}
 	ts := httptest.NewServer(http.HandlerFunc(h))
 	defer ts.Close()
@@ -68,14 +76,17 @@ func TestParseSitemap_Urlset(t *testing.T) {
 func TestParseSitemap_Index(t *testing.T) {
 	// index -> urlset
 	urlsetXML := `<urlset><url><loc>http://127.0.0.1/</loc><lastmod>2023-01-01</lastmod></url></urlset>`
-	var urlsetSrv *httptest.Server
-	urlsetSrv = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte(urlsetXML))
+	urlsetSrv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if _, err := w.Write([]byte(urlsetXML)); err != nil {
+			t.Fatalf("failed to write response: %v", err)
+		}
 	}))
 	defer urlsetSrv.Close()
 	indexXML := `<sitemapindex><sitemap><loc>` + urlsetSrv.URL + `</loc><lastmod>2023-01-01</lastmod></sitemap></sitemapindex>`
 	indexSrv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte(indexXML))
+		if _, err := w.Write([]byte(indexXML)); err != nil {
+			t.Fatalf("failed to write response: %v", err)
+		}
 	}))
 	defer indexSrv.Close()
 	records := [][]string{{"loc", "lastmod"}}
@@ -95,7 +106,9 @@ func TestParseSitemap_Index(t *testing.T) {
 
 func TestGetSitemapRecords(t *testing.T) {
 	h := func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte(`<urlset><url><loc>http://127.0.0.1/</loc><lastmod>2024-01-01</lastmod></url></urlset>`))
+		if _, err := w.Write([]byte(`<urlset><url><loc>http://127.0.0.1/</loc><lastmod>2024-01-01</lastmod></url></urlset>`)); err != nil {
+			t.Fatalf("failed to write response: %v", err)
+		}
 	}
 	ts := httptest.NewServer(http.HandlerFunc(h))
 	defer ts.Close()
@@ -114,7 +127,9 @@ func TestGetSitemapRecords(t *testing.T) {
 
 func TestParseSitemap_InvalidXML(t *testing.T) {
 	h := func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte(`notxml`))
+		if _, err := w.Write([]byte(`notxml`)); err != nil {
+			t.Fatalf("failed to write response: %v", err)
+		}
 	}
 	ts := httptest.NewServer(http.HandlerFunc(h))
 	defer ts.Close()
