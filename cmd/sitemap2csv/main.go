@@ -30,9 +30,18 @@ func main() {
 		fmt.Fprintf(os.Stderr, "File Error: %v\n", err)
 		os.Exit(1)
 	}
-	defer f.Close()
+	defer func() {
+		if err := f.Close(); err != nil {
+			fmt.Fprintf(os.Stderr, "Error closing file: %v\n", err)
+			os.Exit(1)
+		}
+	}()
 	w := csv.NewWriter(f)
-	w.WriteAll(result.Records)
+	if err := w.WriteAll(result.Records); err != nil {
+		// log to stderr
+		fmt.Fprintf(os.Stderr, "Error writing CSV: %v\n", err)
+		os.Exit(1)
+	}
 	if err := w.Error(); err != nil {
 		fmt.Fprintf(os.Stderr, "CSV Error: %v\n", err)
 		os.Exit(1)
