@@ -40,6 +40,9 @@ func fetchXML(url string) ([]byte, error) {
 			return
 		}
 	}()
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("failed to fetch %s: %s", url, resp.Status)
+	}
 
 	if strings.HasSuffix(url, ".gz") {
 		gzr, err := gzip.NewReader(resp.Body)
