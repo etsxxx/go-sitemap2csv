@@ -36,7 +36,8 @@ func fetchXML(url string) ([]byte, error) {
 	}
 	defer func() {
 		if err := resp.Body.Close(); err != nil {
-			panic(err)
+			// do nothing
+			return
 		}
 	}()
 
@@ -47,7 +48,8 @@ func fetchXML(url string) ([]byte, error) {
 		}
 		defer func() {
 			if err := gzr.Close(); err != nil {
-				panic(err)
+				// do nothing
+				return
 			}
 		}()
 		return io.ReadAll(gzr)
