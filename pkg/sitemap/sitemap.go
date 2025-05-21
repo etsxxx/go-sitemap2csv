@@ -51,7 +51,7 @@ func fetchXML(url string) ([]byte, error) {
 // It appends the URLs and their last modified dates to the provided records slice.
 // If the URL points to a sitemap index, it recursively fetches and parses each sitemap.
 // The records slice should be initialized with a header row before calling this function.
-// processedMapがnilでなければ、各urlsetごとにloc数を記録する。
+// If processedMap is not nil, record the number of loc entries for each urlset.
 func parseSitemap(url string, records *[][]string, processedMap map[string]int) error {
 	data, err := fetchXML(url)
 	if err != nil {
@@ -100,9 +100,9 @@ type Result struct {
 }
 
 // GetSitemapRecords fetches and parses a sitemap or sitemap index from the given URL.
-// It returns a GetSitemapResult containing:
+// It returns a Result containing:
 // - Records: a slice of records, each containing the URL and its last modified date.
-// - ProcessedURL: a map of processed sitemap URLs and the number of locs found in each.
+// - ProcessedURLs: a map of processed sitemap URLs and the number of locs found in each.
 // The first record is a header row with "loc" and "lastmod".
 // If the URL points to a sitemap index, it recursively fetches and parses each sitemap.
 // If an error occurs during fetching or parsing, it returns the error.
