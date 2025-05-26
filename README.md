@@ -31,12 +31,26 @@ A full list of binaries are [here](https://github.com/etsxxx/go-sitemap2csv/rele
 sitemap2csv <sitemap_url> <output_csv_file>
 ```
 
-You get a CSV file like the following.  
-The first record is a header row with "loc" and "lastmod".  
+You get a CSV file like the following.
+The first record is a header row with "loc" and "lastmod".
 "lastmod" is empty if there is no lastmod value.
 
 ```text
 loc,lastmod
+https://example.com/foo,
+https://example.com/bar,2025-05-22T01:02:03.000Z
+https://example.com/baz,
+```
+
+If you don't need header row, add '-no-header' option.
+
+```bash
+sitemap2csv -no-header <sitemap_url> <output_csv_file>
+```
+
+With '-no-header' option, you get a CSV file like the following.
+
+```text
 https://example.com/foo,
 https://example.com/bar,2025-05-22T01:02:03.000Z
 https://example.com/baz,
