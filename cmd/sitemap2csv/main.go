@@ -67,7 +67,9 @@ func main() {
 	}()
 	w := csv.NewWriter(f)
 	records := result.Records
-	if noHeader && len(records) > 0 {
+	if noHeader && len(records) >= 1 {
+		// If noHeader is true, remove the header row from the records
+		// This assumes the first row is the header
 		records = records[1:]
 	}
 	if err := w.WriteAll(records); err != nil {
