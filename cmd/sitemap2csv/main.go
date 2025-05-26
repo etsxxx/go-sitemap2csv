@@ -67,7 +67,7 @@ func main() {
 	}()
 	w := csv.NewWriter(f)
 	records := result.Records
-	if noHeader && len(records) > 1 {
+	if noHeader && len(records) > 0 {
 		records = records[1:]
 	}
 	if err := w.WriteAll(records); err != nil {
