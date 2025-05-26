@@ -15,11 +15,13 @@ func main() {
 	var (
 		showVersion bool
 		showHelp    bool
+		noHeader    bool
 	)
 	flag.BoolVar(&showVersion, "v", false, "show version")
 	flag.BoolVar(&showVersion, "version", false, "show version")
 	flag.BoolVar(&showHelp, "h", false, "show help")
 	flag.BoolVar(&showHelp, "help", false, "show help")
+	flag.BoolVar(&noHeader, "no-header", false, "output CSV without header row")
 	flag.Usage = func() {
 		fmt.Println("Usage: sitemap2csv [options] <sitemap_url> <output_csv_file>")
 		flag.PrintDefaults()
@@ -64,7 +66,13 @@ func main() {
 		}
 	}()
 	w := csv.NewWriter(f)
-	if err := w.WriteAll(result.Records); err != nil {
+	records := result.Records
+	if noHeader && len(records) >= 1 {
+		// If noHeader is true, remove the header row from the records
+		// This assumes the first row is the header
+		records = records[1:]
+	}
+	if err := w.WriteAll(records); err != nil {
 		fmt.Fprintf(os.Stderr, "Error writing CSV: %v\n", err)
 		os.Exit(1)
 	}
